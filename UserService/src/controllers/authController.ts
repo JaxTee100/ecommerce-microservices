@@ -94,3 +94,68 @@ export async function login(req: Request, res: Response) {
 
 
 }
+
+
+export async function refreshToken(req: Request, res: Response) {
+  logger.info('Refresh token endpoint called');
+  try {
+    const { token } = req.body;
+    if (!token) {
+      logger.warn('No token provided');
+      return res.status(400).json({ message: 'Token is required' });
+    }
+    const storedToken = await prisma.refresh.findUnique({ where: { token } });
+    if (!storedToken || storedToken.expiresAt < new Date()) {
+      logger.warn('Invalid or expired refresh token');
+      return res.status(401).json({ message: 'Invalid or expired token' });
+    } 
+    const user = await prisma.user.findUnique({ where: { id: storedToken.userId } });
+    if (!user) {
+      logger.warn('User not found for refresh token', storedToken.userId);
+      return res.status(404).json({ message: 'User not found' });
+    }
+    const newToken = jwt.sign({ sub: user.id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
+    res.status(200).json({
+      success: true,
+      message: 'Token refreshed successfully',
+      token: newToken
+    });
+  } catch (error) {
+    logger.error('Error refreshing token', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+}
+
+
+
+export async function logoutUser(req: Request, res: Response) {
+    logger.info("Logout Endpoint  hit.....")
+    try {
+        const {refreshToken} = req.body;
+        if(!refreshToken){
+            logger.warn('refresh token missing');
+            return res.status(400).json({
+                success: false,
+                message: 'refresh token missing',
+            });
+        }
+
+        await prisma.refresh.delete({
+          where: {token: refreshToken}
+        });
+        logger.info('refresh token deleted, user logged out successfully');
+        res.status(200).json({
+            success: true,
+            message: 'user logged out successfully',
+        });
+    } catch (error) {
+        logger.error('error logging out user');
+        res.status(500).json({
+            success: false,
+            message: 'internal server error from logout endpoint',
+        });
+    }
+}

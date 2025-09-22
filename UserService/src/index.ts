@@ -4,7 +4,7 @@ import {logger} from './utils/logger';
 import authRouter from './routes/auth';
 import bodyParser from 'body-parser';
 
-const prisma = new PrismaClient();
+export const prisma = new PrismaClient();
 const app = express();
 const PORT = process.env.PORT || 4000;
 
