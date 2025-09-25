@@ -118,3 +118,5 @@
 {"level":"info","message":"User Service running on port 4000","service":"api-gateway","timestamp":"2025-09-19T00:21:01.456Z"}
 {"level":"info","message":"User Service running on port 4000","service":"api-gateway","timestamp":"2025-09-19T00:23:46.796Z"}
 {"level":"info","message":"User Service running on port 4000","service":"api-gateway","timestamp":"2025-09-19T00:27:23.125Z"}
+{"level":"info","message":"User Service running on port 4000","service":"api-gateway","timestamp":"2025-09-22T16:59:12.488Z"}
+{"level":"info","message":"User Service running on port 4000","service":"api-gateway","timestamp":"2025-09-22T20:28:57.370Z"}
