@@ -120,3 +120,21 @@
 {"level":"info","message":"User Service running on port 4000","service":"api-gateway","timestamp":"2025-09-19T00:27:23.125Z"}
 {"level":"info","message":"User Service running on port 4000","service":"api-gateway","timestamp":"2025-09-22T16:59:12.488Z"}
 {"level":"info","message":"User Service running on port 4000","service":"api-gateway","timestamp":"2025-09-22T20:28:57.370Z"}
+{"level":"info","message":"User Service running on port 4000","service":"api-gateway","timestamp":"2025-09-25T10:46:28.889Z"}
+{"0":"I","1":"n","10":"e","11":"d","12":"e","13":"n","14":"t","15":"i","16":"a","17":"l","18":"s","2":"v","3":"a","4":"l","5":"i","6":"d","7":" ","8":"c","9":"r","level":"warn","message":"Login failed","service":"api-gateway","timestamp":"2025-09-25T10:47:25.630Z"}
+{"level":"info","message":"User Service running on port 4000","service":"api-gateway","timestamp":"2025-09-25T10:47:50.728Z"}
+{"level":"info","message":"User Service running on port 4000","service":"api-gateway","timestamp":"2025-09-25T10:47:55.764Z"}
+{"level":"info","message":"User Service running on port 4000","service":"api-gateway","timestamp":"2025-09-25T10:48:02.062Z"}
+{"level":"info","message":"User Service running on port 4000","service":"api-gateway","timestamp":"2025-09-25T10:48:43.901Z"}
+{"level":"info","message":"User Service running on port 4000","service":"api-gateway","timestamp":"2025-09-25T10:48:49.917Z"}
+{"level":"info","message":"User Service running on port 4000","service":"api-gateway","timestamp":"2025-09-25T10:50:17.695Z"}
+{"level":"info","message":"User Service running on port 4000","service":"api-gateway","timestamp":"2025-09-25T10:50:35.093Z"}
+{"level":"info","message":"User Service running on port 4000","service":"api-gateway","timestamp":"2025-09-25T10:50:42.883Z"}
+{"level":"info","message":"User Service running on port 4000","service":"api-gateway","timestamp":"2025-09-25T10:50:45.303Z"}
+{"level":"info","message":"User Service running on port 4000","service":"api-gateway","timestamp":"2025-09-25T10:50:54.971Z"}
+{"level":"info","message":"User Service running on port 4000","service":"api-gateway","timestamp":"2025-09-25T10:50:58.753Z"}
+{"level":"error","message":"Error refreshing token Invalid or expired token","service":"api-gateway","stack":"Error: Invalid or expired token\n    at UserService.refreshToken (C:\\Users\\Tochukwu Udeh\\Desktop\\TOCHUKWU\\SOFTWARE PROJECTS\\ecommerce\\UserService\\src\\services\\authService.ts:36:13)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async refreshToken (C:\\Users\\Tochukwu Udeh\\Desktop\\TOCHUKWU\\SOFTWARE PROJECTS\\ecommerce\\UserService\\src\\controllers\\authController.ts:38:22)","timestamp":"2025-09-25T10:55:09.559Z"}
+{"level":"error","message":"Error refreshing token Invalid or expired token","service":"api-gateway","stack":"Error: Invalid or expired token\n    at UserService.refreshToken (C:\\Users\\Tochukwu Udeh\\Desktop\\TOCHUKWU\\SOFTWARE PROJECTS\\ecommerce\\UserService\\src\\services\\authService.ts:36:13)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async refreshToken (C:\\Users\\Tochukwu Udeh\\Desktop\\TOCHUKWU\\SOFTWARE PROJECTS\\ecommerce\\UserService\\src\\controllers\\authController.ts:38:22)","timestamp":"2025-09-25T10:55:34.352Z"}
+{"level":"info","message":"User Service running on port 4000","service":"api-gateway","timestamp":"2025-09-25T22:06:49.918Z"}
+{"level":"info","message":"User Service running on port 4000","service":"api-gateway","timestamp":"2025-09-27T00:01:04.739Z"}
+{"level":"info","message":"User Service running on port 4000","service":"api-gateway","timestamp":"2025-09-27T00:01:24.885Z"}

@@ -1,161 +1,93 @@
-import type { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import { logger } from '../utils/logger';
-import { validateLogin, validateRegistration } from '../utils/validation';
-
-const prisma = new PrismaClient();
-
-const JWT_SECRET = process.env.JWT_SECRET || 'change-me';
+// controllers/userController.ts
+import { Request, Response } from "express";
+import { userService } from "../services/authService";
+import { validateLogin, validateRegistration } from "../utils/validation";
+import { logger } from "../utils/logger";
 
 export async function register(req: Request, res: Response) {
-  logger.info('Register endpoint called');
   try {
     const { error } = validateRegistration(req.body);
-    if (error) {
-      logger.warn('validation error', error.details[0].message);
-      return res.status(400).json({
-        success: false,
-        message: error.details[0].message,
+    if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
-      });
-    }
-    const { email, password, name } = req.body;
-    const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing) {
-      logger.warn('Email already in use', email);
-      res.status(400).json({
-        success: false,
-        message: 'Email already in use'
-      });
-      return;
-    }
-    const hashed = await bcrypt.hash(password, 10);
-    const user = await prisma.user.create({
-      data: { email, password: hashed, name }
-    });
-    logger.info('User registered', { userId: user.id });
-    res.status(201).json({
-      success: true,
-      message: 'User registered succesfully',
-      user: user.id
-    });
-  } catch (error) {
-
-    logger.error('Registration error', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error'
-    });
+    const userId = await userService.register(req.body);
+    res.status(201).json({ success: true, message: "User registered successfully", user: userId });
+  } catch (err: any) {
+    logger.error("Registration error", err);
+    res.status(400).json({ success: false, message: err.message });
   }
-
-
 }
 
 export async function login(req: Request, res: Response) {
-  logger.info('Login endpoint called');
   try {
     const { error } = validateLogin(req.body);
-    if (error) {
-      logger.warn('validation error', error.details[0].message);
-      return res.status(400).json({
-        success: false,
-        message: error.details[0].message,
-      });
-    }
-    const { email, password } = req.body;
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
-      logger.warn('Invalid credentials', email);
-      return res.status(401).json({ message: 'invalid credentials' });
-    }
-    const ok = await bcrypt.compare(password, user.password);
-    if (!ok) {
-      logger.warn('Invalid credentials', email);
-      return res.status(401).json({ message: 'invalid credentials' });
-    }
-    const token = jwt.sign({ sub: user.id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
+    if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
-    res.status(200).json({
-      success: true,
-      message: 'Login successful',
-      token
-    });
-  } catch (error) {
-
+    const token = await userService.login(req.body.email, req.body.password);
+    res.status(200).json({ success: true, message: "Login successful", token });
+  } catch (err: any) {
+    logger.warn("Login failed", err.message);
+    res.status(401).json({ success: false, message: err.message });
   }
-
-
-
-
-
-
-
-
 }
-
 
 export async function refreshToken(req: Request, res: Response) {
-  logger.info('Refresh token endpoint called');
   try {
     const { token } = req.body;
-    if (!token) {
-      logger.warn('No token provided');
-      return res.status(400).json({ message: 'Token is required' });
-    }
-    const storedToken = await prisma.refresh.findUnique({ where: { token } });
-    if (!storedToken || storedToken.expiresAt < new Date()) {
-      logger.warn('Invalid or expired refresh token');
-      return res.status(401).json({ message: 'Invalid or expired token' });
-    } 
-    const user = await prisma.user.findUnique({ where: { id: storedToken.userId } });
-    if (!user) {
-      logger.warn('User not found for refresh token', storedToken.userId);
-      return res.status(404).json({ message: 'User not found' });
-    }
-    const newToken = jwt.sign({ sub: user.id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
-    res.status(200).json({
-      success: true,
-      message: 'Token refreshed successfully',
-      token: newToken
-    });
-  } catch (error) {
-    logger.error('Error refreshing token', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error'
-    });
+    if (!token) return res.status(400).json({ success: false, message: "Token is required" });
+
+    const newToken = await userService.refreshToken(token);
+    res.status(200).json({ success: true, message: "Token refreshed successfully", token: newToken });
+  } catch (err: any) {
+    logger.error("Error refreshing token", err);
+    res.status(401).json({ success: false, message: err.message });
   }
 }
 
-
-
 export async function logoutUser(req: Request, res: Response) {
-    logger.info("Logout Endpoint  hit.....")
-    try {
-        const {refreshToken} = req.body;
-        if(!refreshToken){
-            logger.warn('refresh token missing');
-            return res.status(400).json({
-                success: false,
-                message: 'refresh token missing',
-            });
-        }
+  try {
+    const { refreshToken } = req.body;
+    if (!refreshToken) return res.status(400).json({ success: false, message: "refresh token missing" });
 
-        await prisma.refresh.delete({
-          where: {token: refreshToken}
-        });
-        logger.info('refresh token deleted, user logged out successfully');
-        res.status(200).json({
-            success: true,
-            message: 'user logged out successfully',
-        });
-    } catch (error) {
-        logger.error('error logging out user');
-        res.status(500).json({
-            success: false,
-            message: 'internal server error from logout endpoint',
-        });
-    }
+    await userService.logout(refreshToken);
+    res.status(200).json({ success: true, message: "User logged out successfully" });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+}
+
+// CRUD Controllers
+export async function getAllUsers(req: Request, res: Response) {
+  try {
+    const users = await userService.getAllUsers();
+    res.status(200).json({ success: true, users });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+}
+
+export async function getUserById(req: Request, res: Response) {
+  try {
+    const user = await userService.getUserById(req.params.id);
+    res.status(200).json({ success: true, user });
+  } catch (err: any) {
+    res.status(404).json({ success: false, message: err.message });
+  }
+}
+
+export async function updateUser(req: Request, res: Response) {
+  try {
+    const user = await userService.updateUser(req.params.id, req.body);
+    res.status(200).json({ success: true, message: "User updated successfully", user });
+  } catch (err: any) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+}
+
+export async function deleteUser(req: Request, res: Response) {
+  try {
+    await userService.deleteUser(req.params.id);
+    res.status(200).json({ success: true, message: "User deleted successfully" });
+  } catch (err: any) {
+    res.status(400).json({ success: false, message: err.message });
+  }
 }
