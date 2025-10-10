@@ -1,4 +1,5 @@
 import express from 'express';
+import { logger } from './utils/logger';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -8,5 +9,5 @@ app.get('/', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`API Gateway is listening on port ${PORT}`);
+  logger.info(`API Gateway is listening on port ${PORT}`);
 });

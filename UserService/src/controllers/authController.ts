@@ -3,14 +3,15 @@ import { Request, Response } from "express";
 import { userService } from "../services/authService";
 import { validateLogin, validateRegistration } from "../utils/validation";
 import { logger } from "../utils/logger";
+import { AuthRequest } from "../middlewares/authMiddleware";
 
 export async function register(req: Request, res: Response) {
   try {
     const { error } = validateRegistration(req.body);
     if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
-    const userId = await userService.register(req.body);
-    res.status(201).json({ success: true, message: "User registered successfully", user: userId });
+    const user = await userService.register(req.body);
+    res.status(201).json({ success: true, message: "User registered successfully", user });
   } catch (err: any) {
     logger.error("Registration error", err);
     res.status(400).json({ success: false, message: err.message });
@@ -56,8 +57,11 @@ export async function logoutUser(req: Request, res: Response) {
 }
 
 // CRUD Controllers
-export async function getAllUsers(req: Request, res: Response) {
+export async function getAllUsers(req: AuthRequest, res: Response) {
   try {
+    const role = req.user?.role
+    console.log("User Role from token:", req.user);
+    if(role !== "admin") return res.status(403).json({ success: false, message: "Forbidden. Admins only." });
     const users = await userService.getAllUsers();
     res.status(200).json({ success: true, users });
   } catch (err: any) {
@@ -65,9 +69,12 @@ export async function getAllUsers(req: Request, res: Response) {
   }
 }
 
-export async function getUserById(req: Request, res: Response) {
+export async function getUserById(req: AuthRequest, res: Response) {
   try {
-    const user = await userService.getUserById(req.params.id);
+    const userId = req.user?.id
+    console.log("User ID from token:", req.user?.role);
+    if(!userId) return res.status(401).json({ success: false, message: "Unauthorized" });
+    const user = await userService.getUserById(userId);
     res.status(200).json({ success: true, user });
   } catch (err: any) {
     res.status(404).json({ success: false, message: err.message });

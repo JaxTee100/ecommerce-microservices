@@ -7,7 +7,7 @@ import { refreshTokenDAO } from "../DAO/refreshTokenDAO";
 const JWT_SECRET = process.env.JWT_SECRET || "change-me";
 
 class UserService {
-  async register(data: { email: string; password: string; name: string }) {
+  async register(data: { email: string; password: string; name: string, role: string }) {
     const existing = await userDAO.findByEmail(data.email);
     if (existing) {
       throw new Error("Email already in use");
@@ -16,7 +16,7 @@ class UserService {
     const hashed = await bcrypt.hash(data.password, 10);
     const user = await userDAO.create({ ...data, password: hashed });
 
-    return user.id;
+    return user;
   }
 
   async login(email: string, password: string) {
@@ -26,7 +26,7 @@ class UserService {
     const ok = await bcrypt.compare(password, user.password);
     if (!ok) throw new Error("Invalid credentials");
 
-    const token = jwt.sign({ sub: user.id, email: user.email }, JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: "1h" });
     return token;
   }
 
